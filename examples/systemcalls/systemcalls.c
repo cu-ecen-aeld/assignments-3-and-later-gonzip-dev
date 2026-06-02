@@ -1,4 +1,5 @@
 #include "systemcalls.h"
+#define _XOPEN_SOURCE
 
 /**
  * @param cmd the command to execute with system()
@@ -10,6 +11,19 @@
 bool do_system(const char *cmd)
 {
 
+    int sysres = 0;
+    bool retval = false;
+
+    sysres = system(cmd);
+    /*if (WIFSIGNALED(sysres) && 
+        ( WTERMSIG(sysres) == SIGINT || WTERMSIG(sysres) == SIGQUIT))
+    {
+        retval = false;
+    }*/
+    
+        
+
+    if (sysres != -1 ) retval = true;
 /*
  * TODO  add your code here
  *  Call the system() function with the command set in the cmd
@@ -17,7 +31,7 @@ bool do_system(const char *cmd)
  *   or false() if it returned a failure
 */
 
-    return true;
+    return retval;
 }
 
 /**
@@ -47,8 +61,24 @@ bool do_exec(int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
+    //command[count] = command[count];
 
+    pid_t kidpid;
+    int kidstat;
+    bool retval = false;
+    fflush(stdout);
+    switch (kidpid = fork())
+    {
+        case -1: printf("Fork error");
+        case 0:
+            execv(command[0],&command[0]);
+            exit(-1);//This should never be reached
+        default:
+            waitpid(kidpid,&kidstat,0);
+            if (WIFEXITED(kidstat)&&(WEXITSTATUS(kidstat)==0)) retval=true;
+            //We only return true if the kid was exited succesfully and status was 0.
+
+    }
 /*
  * TODO:
  *   Execute a system command by calling fork, execv(),
@@ -61,7 +91,7 @@ bool do_exec(int count, ...)
 
     va_end(args);
 
-    return true;
+    return retval;
 }
 
 /**
@@ -79,12 +109,32 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     {
         command[i] = va_arg(args, char *);
     }
-    command[count] = NULL;
+    command[count]=NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
+    //command[count] = command[count];
 
+    int kidpid;
+    int fd = creat(outputfile,0644u);
+    int kidstat;
+    bool retval = false; //We assume failure and only actually return true if the conditions are met ()
+                         // conditions for success, child exit succesfull and correct status.
+    switch (kidpid = fork())
+    {
+        case -1: printf("fork_error");
+        case 0:
+            if (dup2(fd,1)<0) {printf("dup2_Error"); exit(-1);}
+            execv(command[0],&command[0]);
+            exit(-1);//Never reaching here if execv did not fail
+        default:
+            waitpid(kidpid,&kidstat,0);
+            close(fd);
+            if (WIFEXITED(kidstat)&&(WEXITSTATUS(kidstat)==0)) retval=true;
+            //We only return true if the kid was exited succesfully and status was 0.
+            
+    }
 
+    
 /*
  * TODO
  *   Call execv, but first using https://stackoverflow.com/a/13784315/1446624 as a refernce,
@@ -95,5 +145,5 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 
     va_end(args);
 
-    return true;
+    return retval;
 }
