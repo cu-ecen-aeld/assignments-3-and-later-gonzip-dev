@@ -4,16 +4,18 @@ CC_CROSS=/home/arturo/Downloads/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-
 default: all
 
 all:
+	$(CROSS_COMPILE)gcc -Wall writer.c -o writer	
+
+clean:
+	rm -f *.o writer *.out
+
+old:
 ifdef CROSS_COMPILE
 	@echo "cross_compile enabled"	
-	$(CC_CROSS) -static -Wall writer.c -o writer_a64
+	$(CC_CROSS) -Wall writer.c -o writer
 
 endif
 ifndef CROSS_COMPILE
 	@echo "native build enabled"
-	$(CC) -Wall writer.c -o writer
+	$(CC)gcc -Wall writer.c -o writer
 endif
-	
-
-clean:
-	rm -f *.o writer writer_a64 *.out
