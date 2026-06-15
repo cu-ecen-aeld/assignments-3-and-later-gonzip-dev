@@ -27,6 +27,22 @@ fi
 
 mkdir -p ${OUTDIR}
 
+# directory creation
+
+mkdir -p "$OUTDIR/rootfs"
+cd "$OUTDIR/rootfs"
+mkdir -p bin dev etc home lib lib64 proc sbin sys tmp usr var
+mkdir -p usr/bin usr/lib usr/sbin
+mkdir -p var/log
+mkdir -p home/conf
+
+# TODO: Add library dependencies to rootfs
+
+cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
+
+cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
+
+
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/linux-stable" ]; then
     #Clone only if the repository does not exist.
@@ -57,12 +73,16 @@ then
     sudo rm  -rf ${OUTDIR}/rootfs
 fi
 
+# directory creation
+
 mkdir -p "$OUTDIR/rootfs"
 cd "$OUTDIR/rootfs"
 mkdir -p bin dev etc home lib lib64 proc sbin sys tmp usr var
 mkdir -p usr/bin usr/lib usr/sbin
 mkdir -p var/log
 mkdir -p home/conf
+
+
 
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
@@ -88,11 +108,7 @@ echo "Library dependencies"
 ${CROSS_COMPILE}readelf -a $OUTDIR/rootfs/bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a $OUTDIR/rootfs/bin/busybox | grep "Shared library"
 
-# TODO: Add library dependencies to rootfs
 
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
-
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
 
 
 # TODO: Make device nodes
