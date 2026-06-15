@@ -6,7 +6,7 @@ set -e
 set -u
 
 OUTDIR=/tmp/aeld
-BASE_DIR=/home/arturo
+BASE_DIR=$(pwd)
 KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 KERNEL_VERSION=v5.15.163
 BUSYBOX_VERSION=1_33_1
@@ -38,9 +38,9 @@ mkdir -p home/conf
 
 # TODO: Add library dependencies to rootfs
 
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
+cp $BASE_DIR/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
 
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
+cp $BASE_DIR/finder-app/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
 
 
 cd "$OUTDIR"
@@ -119,19 +119,19 @@ sudo mknod -m 666 ${OUTDIR}/rootfs/dev/console c 5 1
 # TODO: Clean and build the writer utility
 echo "clean and build"
 
-cd "$BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app"
+cd "$BASE_DIR/finder-app"
 make clean
 make CROSS_COMPILE=${CROSS_COMPILE} all
 
 # move writer application
 echo "move writer"
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/writer "$OUTDIR/rootfs/home"
+cp $BASE_DIR/finder-app/writer "$OUTDIR/rootfs/home"
 
 # TODO: Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 echo "move scripts and execs"
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/{finder.sh,finder-test.sh,autorun-qemu.sh} $OUTDIR/rootfs/home
-cp $BASE_DIR/assignments-3-and-later-gonzip-dev/conf/{username.txt,assignment.txt} $OUTDIR/rootfs/home/conf
+cp $BASE_DIR/finder-app/{finder.sh,finder-test.sh,autorun-qemu.sh} $OUTDIR/rootfs/home
+cp $BASE_DIR/conf/{username.txt,assignment.txt} $OUTDIR/rootfs/home/conf
 
 # TODO: Chown the root directory
 sudo chown 777 $OUTDIR/rootfs
