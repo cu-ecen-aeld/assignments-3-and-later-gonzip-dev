@@ -67,7 +67,11 @@ mkdir -p home/conf
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
-git clone git://busybox.net/busybox.git
+    
+    until git clone git://busybox.net/busybox.git
+    do 
+        echo "git clone failed"
+    done
     cd busybox
     git checkout ${BUSYBOX_VERSION}
     make distclean
