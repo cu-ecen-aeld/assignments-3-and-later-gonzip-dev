@@ -68,7 +68,7 @@ cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
     
-    until git clone git://busybox.net/busybox.git
+    until git clone git://busybox.net/busybox.git --depth 1 --branch ${BUSYBOX_VERSION}
     do 
         echo "git clone failed"
     done
@@ -90,9 +90,9 @@ ${CROSS_COMPILE}readelf -a $OUTDIR/rootfs/bin/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs
 
-cp $LIB_DEPENDANCIES_DIR/libc/lib/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
+cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
 
-cp $LIB_DEPENDANCIES_DIR/libc/lib64/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
+cp $BASE_DIR/assignments-3-and-later-gonzip-dev/finder-app/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
 
 
 # TODO: Make device nodes
