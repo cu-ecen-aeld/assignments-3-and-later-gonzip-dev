@@ -127,7 +127,7 @@ cp $FINDER_APP_DIR/writer "$OUTDIR/rootfs/home"
 # on the target rootfs
 echo "move scripts and execs"
 cp $FINDER_APP_DIR/{finder.sh,finder-test.sh,autorun-qemu.sh} $OUTDIR/rootfs/home
-cp $FINDER_APP_DIR/{username.txt,assignment.txt} $OUTDIR/rootfs/home/conf
+cp $FINDER_APP_DIR/conf/{username.txt,assignment.txt} $OUTDIR/rootfs/home/conf
 
 # TODO: Chown the root directory
 sudo chown 777 $OUTDIR/rootfs
