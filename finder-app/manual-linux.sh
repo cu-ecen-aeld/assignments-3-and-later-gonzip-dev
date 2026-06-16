@@ -6,7 +6,7 @@ set -e
 set -u
 
 OUTDIR=/tmp/aeld
-KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+KERNEL_REPO=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 KERNEL_VERSION=v5.15.163
 BUSYBOX_VERSION=1_33_1
 FINDER_APP_DIR=$(realpath $(dirname $0))
@@ -23,23 +23,6 @@ else
 fi
 
 mkdir -p ${OUTDIR}
-
-# directory creation
-
-mkdir -p "$OUTDIR/rootfs"
-cd "$OUTDIR/rootfs"
-mkdir -p bin dev etc home lib lib64 proc sbin sys tmp usr var
-mkdir -p usr/bin usr/lib usr/sbin
-mkdir -p var/log
-mkdir -p home/conf
-
-# TODO: Add library dependencies to rootfs
-
-SYSROOT_DIR=$(${CROSS_COMPILE}gcc -print-sysroot)
-
-cp $SYSROOT_DIR/lib/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
-
-cp $SYSROOT_DIR/lib64/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
 
 
 cd "$OUTDIR"
@@ -87,7 +70,7 @@ cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
     
-    until git clone git://busybox.net/busybox.git --depth 1 --branch ${BUSYBOX_VERSION}
+    until git clone https://git.busybox.net/busybox --depth 1 --branch ${BUSYBOX_VERSION}
     do 
         echo "git clone failed"
     done
@@ -106,6 +89,23 @@ make -j4 CONFIG_PREFIX=${OUTDIR}/rootfs ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPI
 echo "Library dependencies"
 ${CROSS_COMPILE}readelf -a $OUTDIR/rootfs/bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a $OUTDIR/rootfs/bin/busybox | grep "Shared library"
+
+# directory creation
+
+mkdir -p "$OUTDIR/rootfs"
+cd "$OUTDIR/rootfs"
+mkdir -p bin dev etc home lib lib64 proc sbin sys tmp usr var
+mkdir -p usr/bin usr/lib usr/sbin
+mkdir -p var/log
+mkdir -p home/conf
+
+# TODO: Add library dependencies to rootfs
+
+SYSROOT_DIR=$(${CROSS_COMPILE}gcc -print-sysroot)
+
+cp $SYSROOT_DIR/lib/ld-linux-aarch64.so.1 $OUTDIR/rootfs/lib
+
+cp $SYSROOT_DIR/lib64/{libm.so.6,libresolv.so.2,libc.so.6} $OUTDIR/rootfs/lib64
 
 # TODO: Make device nodes
 
